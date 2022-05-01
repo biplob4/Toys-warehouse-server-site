@@ -1,3 +1,4 @@
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -10,7 +11,6 @@ require('dotenv').config();
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const { query } = require('express');
 const uri = "mongodb+srv://toysdb:AlsW4MWbX4OcIz5K@cluster0.bjlw9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -33,10 +33,17 @@ async function run (){
             const regult = await cursor.toArray();
             res.send(regult);
         })
-        
+
         app.post('/toys',async(req,res)=>{
             const query = req.body;
             const regult =await toysCollection.insertOne(query);
+            res.send(regult);
+        })
+
+        app.delete('/toys/:id',async(req,res)=>{
+            const id = req.params.id;
+            const filtter = {_id: ObjectId(id)};
+            const regult =await toysCollection.deleteOne(filtter);
             res.send(regult);
         })
 
