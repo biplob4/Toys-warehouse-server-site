@@ -27,6 +27,19 @@ async function run (){
             res.send(regult);
         })
 
+        app.get('/toys',async(req,res)=>{
+            const query = {};
+            const cursor = toysCollection.find(query);
+            const regult = await cursor.toArray();
+            res.send(regult);
+        })
+        
+        app.post('/toys',async(req,res)=>{
+            const query = req.body;
+            const regult =await toysCollection.insertOne(query);
+            res.send(regult);
+        })
+
     }finally{}
 }
 run().catch(console.dir);
