@@ -15,6 +15,7 @@ const { query } = require('express');
 const uri = `mongodb+srv://toysdb:${process.env.REACR_PASS}@cluster0.bjlw9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 const toysCollection = client.db("toysCollection").collection("toys");
+const userProductCollection = client.db("userProductCollection").collection("user");
 
 async function run() {
     try {
@@ -37,6 +38,34 @@ async function run() {
         app.post('/toys', async (req, res) => {
             const query = req.body;
             const regult = await toysCollection.insertOne(query);
+            res.send(regult);
+        })
+
+        app.post('/user', async (req, res) => {
+            const query = req.body;
+            const regult = await userProductCollection.insertOne(query);
+            res.send(regult);
+        })
+
+        app.get('/user', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = userProductCollection.find(query);
+            const regult = await cursor.toArray();
+            res.send(regult);
+        })
+
+        app.delete('/user/:id', async (req, res) => {
+            const id = req.params.id;
+            const filtter = { _id: ObjectId(id) };
+            const regult = await userProductCollection.deleteOne(filtter);
+            res.send(regult);
+        })
+
+        app.delete('/toys/:id', async (req, res) => {
+            const id = req.params.id;
+            const filtter = { _id: ObjectId(id) };
+            const regult = await toysCollection.deleteOne(filtter);
             res.send(regult);
         })
 
