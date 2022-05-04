@@ -1,5 +1,6 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -9,6 +10,23 @@ app.use(cors());
 app.use(express.json());
 require('dotenv').config();
 
+
+// JWT vrify 
+function verifyJwt(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: "unauthorized access" })
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ message: "Forbiden" })
+        }
+        // console.log(decoded);
+        req.decoded = decoded;
+        next();
+    })
+}
 
 
 const { query } = require('express');
@@ -20,6 +38,16 @@ const userProductCollection = client.db("userProductCollection").collection("use
 async function run() {
     try {
         await client.connect();
+
+        // sekret-key commend: require('crypto').randomBytes(64).toString('hex')
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.SECRET_KEY, {
+                expiresIn: '1d'
+            })
+            res.send({ accessToken });
+            console.log(accessToken);
+        })
 
         app.get('/toysLimited', async (req, res) => {
             const query = {};
@@ -47,12 +75,18 @@ async function run() {
             res.send(regult);
         })
 
-        app.get('/user', async (req, res) => {
+        app.get('/user',verifyJwt, async (req, res) => {
+            const decodedEmail = req.decoded.email;
             const email = req.query.email;
-            const query = { email: email };
-            const cursor = userProductCollection.find(query);
-            const regult = await cursor.toArray();
-            res.send(regult);
+            if (decodedEmail === email) {
+                const query = { email: email };
+                const cursor = userProductCollection.find(query);
+                const regult = await cursor.toArray();
+                res.send(regult);
+            }
+            else {
+                return res.status(403).send({ message: "Forbiden access" })
+            }
         })
 
         app.delete('/user/:id', async (req, res) => {
