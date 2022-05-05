@@ -15,12 +15,12 @@ require('dotenv').config();
 function verifyJwt(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        return res.status(401).send({ message: "unauthorized access" })
+        return res.status(401).send({ message: "unauthorized access" });
     }
     const token = authHeader.split(' ')[1];
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
         if (err) {
-            return res.status(403).send({ message: "Forbiden" })
+            return res.status(403).send({ message: "Forbiden" });
         }
         // console.log(decoded);
         req.decoded = decoded;
@@ -43,7 +43,7 @@ async function run() {
         app.post('/login', async (req, res) => {
             const user = req.body;
             const accessToken = jwt.sign(user, process.env.SECRET_KEY, {
-                expiresIn: '1s'
+                expiresIn: '1d'
             })
             res.send({ accessToken });
         })
@@ -84,7 +84,7 @@ async function run() {
                 res.send(regult);
             }
             else {
-                return res.status(403).send({ message: "Forbiden access" })
+                return res.status(403).send({ message: "Forbiden access" });
             }
         })
 
