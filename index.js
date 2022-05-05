@@ -43,10 +43,9 @@ async function run() {
         app.post('/login', async (req, res) => {
             const user = req.body;
             const accessToken = jwt.sign(user, process.env.SECRET_KEY, {
-                expiresIn: '1d'
+                expiresIn: '1s'
             })
             res.send({ accessToken });
-            console.log(accessToken);
         })
 
         app.get('/toysLimited', async (req, res) => {
