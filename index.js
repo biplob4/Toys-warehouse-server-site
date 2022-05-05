@@ -2,14 +2,14 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const app = express();
-const port = process.env.PORT || 5000;
 const cors = require('cors');
+const port = process.env.PORT || 5000;
+require('dotenv').config();
 
-app.use(cors());
 
 // Middleware
+app.use(cors());
 app.use(express.json());
-require('dotenv').config();
 
 
 // JWT vrify 
@@ -30,7 +30,7 @@ function verifyJwt(req, res, next) {
 }
 
 
-const { query } = require('express');
+
 const uri = `mongodb+srv://toysdb:${process.env.REACR_PASS}@cluster0.bjlw9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 const toysCollection = client.db("toysCollection").collection("toys");
@@ -48,6 +48,7 @@ async function run() {
             })
             res.send({ accessToken });
         })
+        
 
         app.get('/toysLimited', async (req, res) => {
             const query = {};
