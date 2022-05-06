@@ -58,10 +58,17 @@ async function run() {
         })
 
         app.get('/toys', async (req, res) => {
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
+            let regult;
             const query = {};
             const cursor = toysCollection.find(query);
-            const regult = await cursor.toArray();
-            res.send(regult);
+            if (page || size) {
+                regult = await cursor.skip(page * size).limit(size).toArray();
+            } else {
+                regult = await cursor.toArray();
+            }
+            res.send(regult)
         })
 
         app.post('/toys', async (req, res) => {
@@ -131,6 +138,11 @@ async function run() {
             const regult = await toysCollection.updateOne(fillter, updateProduct, options);
             res.send(regult);
         })
+
+        app.get('/productCount', async (req, res) => {
+            const count = await toysCollection.estimatedDocumentCount();
+            res.send({ count });
+        });
 
     } finally { }
 }
